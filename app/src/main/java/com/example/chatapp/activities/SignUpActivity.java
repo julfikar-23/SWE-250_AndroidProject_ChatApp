@@ -120,6 +120,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private boolean isValidSignUpDetails() {
+        String password = binding.inputPassword.getText().toString();
         if (encodedImage == null) {
             showToast("Select profile image");
             return false;
@@ -135,7 +136,12 @@ public class SignUpActivity extends AppCompatActivity {
         } else if (binding.inputPassword.getText().toString().trim().isEmpty()) {
             showToast("Enter password");
             return false;
-        } else if (binding.inputConfirmPassword.getText().toString().trim().isEmpty()) {
+        }else if (!isStrongPassword(password)) {
+            showToast("Weak Password! Must use a_z,A_Z,0_9,special char >= 8");
+            return false;
+        }
+
+        else if (binding.inputConfirmPassword.getText().toString().trim().isEmpty()) {
             showToast("Confirm your password");
             return false;
         } else if (!binding.inputPassword.getText().toString().equals(binding.inputConfirmPassword.getText().toString())) {
@@ -144,6 +150,13 @@ public class SignUpActivity extends AppCompatActivity {
         } else {
             return true;
         }
+    }
+
+    private boolean isStrongPassword(String password) {
+        // Password length must be grater or equal 8
+        // must use at least one digit, lowercase, uppercase, special char but not use space
+        String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
+        return password.matches(regex);
     }
 
     private void loading(Boolean isLoading) {
