@@ -4,10 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.activity.EdgeToEdge;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import com.example.chatapp.activities.adapters.UsersAdapter;
 import com.example.chatapp.activities.listeners.UserListener;
 import com.example.chatapp.activities.models.User;
@@ -50,6 +46,8 @@ public class UsersActivity extends BaseActivity implements UserListener {
                     if(task.isSuccessful() &&  task.getResult() != null){
                         List<User> users = new ArrayList<>();
                         for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()){
+
+                            // Skips the current logged-in user from the list
                             if(currentUserId.equals(queryDocumentSnapshot.getId())){
                                 continue;
                             }

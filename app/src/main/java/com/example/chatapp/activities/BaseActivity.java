@@ -24,13 +24,13 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
+    protected void onPause() { // goes to offline
         super.onPause();
         documentReference.update(Constants.KEY_AVAILABILITY, 0);
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume() { // return back to online
         super.onResume();
         documentReference.update(Constants.KEY_AVAILABILITY, 1);
     }

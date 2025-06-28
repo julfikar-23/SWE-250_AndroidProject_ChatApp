@@ -2,15 +2,11 @@ package com.example.chatapp.activities;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import com.example.chatapp.activities.adapters.ChatAdapter;
 import com.example.chatapp.activities.models.ChatMessage;
 import com.example.chatapp.activities.utilities.Constants;
@@ -72,16 +68,35 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void sendMessage(){
+
+        // empty message won't be sent
+        String messageText = binding.inputMessage.getText().toString().trim();
+        if (messageText.isEmpty()) {
+            Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         HashMap<String, Object> message = new HashMap<>();
+
+        // adds senderID, receiverID to the message
         message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
         message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
+
+        // adds text message to the input field
         message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
         message.put(Constants.KEY_TIMESTAMP, new Date());
+
+        // saves the message to Firestore Database
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
+
+        // checks conversation already exist? if Yes --> update with last message & timestamp
         if(conversionId != null){
             updateConversion(binding.inputMessage.getText().toString());
-        }else {
+
+        }else { // no conversations exist, so creates a new conversation
             HashMap<String, Object> conversion = new HashMap<>();
+
+            // adds sender & receiver ID, NAME, IMAGE to the conversation
             conversion.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
             conversion.put(Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME));
             conversion.put(Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_IMAGE));
@@ -92,8 +107,11 @@ public class ChatActivity extends BaseActivity {
 
             conversion.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
             conversion.put(Constants.KEY_TIMESTAMP, new Date());
+
+            // saves new conversation to Firestore
             addConversion(conversion);
         }
+        // clear message field
         binding.inputMessage.setText(null);
     }
 
@@ -111,7 +129,6 @@ public class ChatActivity extends BaseActivity {
                     ).intValue();
                     isReceivedAvailable = availability ==1;
                 }
-                // receiverUser.token = value.getString(Constants.KEY_FCM_TOKEN);
             }
             if(isReceivedAvailable){
                 binding.textAvailability.setVisibility(View.VISIBLE);
@@ -122,6 +139,7 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void listenMessages(){
+        // filter sender & receiver ID
         database.collection(Constants.KEY_COLLECTION_CHAT)
                 .whereEqualTo(Constants.KEY_SENDER_ID,preferenceManager.getString(Constants.KEY_USER_ID))
                 .whereEqualTo(Constants.KEY_RECEIVER_ID, receiverUser.id)
@@ -139,6 +157,8 @@ public class ChatActivity extends BaseActivity {
         if(value != null){
             int count = chatMessages.size();
             for(DocumentChange documentChange : value.getDocumentChanges()){
+
+                // handle only added messages
                 if(documentChange.getType() == DocumentChange.Type.ADDED){
                     ChatMessage chatMessage = new ChatMessage();
                     chatMessage.senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
@@ -182,7 +202,7 @@ public class ChatActivity extends BaseActivity {
         return new SimpleDateFormat("MMMM dd, yyyy hh:mm a", Locale.getDefault()).format(date);
     }
 
-    private  void addConversion(HashMap<String, Object> conversion){
+    private  void addConversion(HashMap<String, Object> conversion){ // saves new conversation to Firestore
         database.collection(Constants.KEY_COLLECTION_CONVERSATIONS)
                 .add(conversion)
                 .addOnSuccessListener(documentReference -> conversionId = documentReference.getId());

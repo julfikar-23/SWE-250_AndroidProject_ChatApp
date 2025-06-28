@@ -12,10 +12,9 @@ import com.example.chatapp.activities.utilities.Constants;
 import com.example.chatapp.activities.utilities.PreferenceManager;
 import com.example.chatapp.databinding.ActivitySigninBinding;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class SigninActivity extends AppCompatActivity {
+public class SignInActivity extends AppCompatActivity {
 
     private ActivitySigninBinding binding;
     private PreferenceManager preferenceManager;

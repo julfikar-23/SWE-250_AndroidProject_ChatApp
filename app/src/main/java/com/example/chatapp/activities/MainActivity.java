@@ -5,11 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
 import com.example.chatapp.activities.adapters.RecentConversationsAdapter;
 import com.example.chatapp.activities.listeners.ConversionListener;
 import com.example.chatapp.activities.models.ChatMessage;
@@ -100,11 +95,14 @@ public class MainActivity extends BaseActivity implements ConversionListener {
                     ChatMessage chatMessage = new ChatMessage();
                     chatMessage.senderId =senderId;
                     chatMessage.receiverId = receiverId;
+
+                    // if current user be sender, set receivers conversation display values.
                     if (preferenceManager.getString(Constants.KEY_USER_ID).equals(senderId)){
                         chatMessage.conversionImage = documentChange.getDocument().getString(Constants.KEY_RECEIVER_IMAGE);
                         chatMessage.conversionName = documentChange.getDocument().getString(Constants.KEY_RECEIVER_NAME);
                         chatMessage.conversionId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
-                    }else{
+
+                    }else{ // if current user be receiver, set senders conversation display values.
                         chatMessage.conversionImage = documentChange.getDocument().getString(Constants.KEY_SENDER_IMAGE);
                         chatMessage.conversionName = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME);
                         chatMessage.conversionId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
@@ -112,6 +110,7 @@ public class MainActivity extends BaseActivity implements ConversionListener {
                     chatMessage.message = documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
                     chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
                     conversations.add(chatMessage);
+
                 }else if(documentChange.getType() == DocumentChange.Type.MODIFIED){
                     for (int i=0; i<conversations.size(); ++i){
                         String senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
@@ -159,7 +158,7 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         documentReference.update(updates)
                 .addOnSuccessListener(unused -> {
                     preferenceManager.clear();
-                    startActivity(new Intent(getApplicationContext(), SigninActivity.class));
+                    startActivity(new Intent(getApplicationContext(), SignInActivity.class));
                     finish();
                 })
                 .addOnFailureListener(e -> showToast("Unable to sign out"));

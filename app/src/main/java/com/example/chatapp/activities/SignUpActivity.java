@@ -49,6 +49,7 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
         binding.layoutImage.setOnClickListener(v -> {
+            // to open external storage (Gallery)
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             pickImage.launch(intent);
@@ -65,7 +66,7 @@ public class SignUpActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 auth.getCurrentUser().sendEmailVerification().addOnSuccessListener(unused -> {
                     saveUserProfile(auth.getCurrentUser().getUid());
-                    showToast("Verification email sent. Please verify before signing in.");
+                    showToast("Verification email sent. Please verify before login.");
                     loading(false);
                     auth.signOut();
                     finish();
@@ -90,8 +91,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private final ActivityResultLauncher<Intent> pickImage = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
+            new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     if (result.getData() != null) {
                         Uri imageUri = result.getData().getData();
@@ -140,7 +140,6 @@ public class SignUpActivity extends AppCompatActivity {
             showToast("Weak Password! Must use a_z,A_Z,0_9,special char >= 8");
             return false;
         }
-
         else if (binding.inputConfirmPassword.getText().toString().trim().isEmpty()) {
             showToast("Confirm your password");
             return false;
