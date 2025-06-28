@@ -13,4 +13,5 @@
     <string name="select_user">select_user</string>
     <string name="type_a_message">Type a message</string>
     <string name="online">online</string>
+    <string name="need_forgot_password">Need Forgot Password?</string>
 </resources>

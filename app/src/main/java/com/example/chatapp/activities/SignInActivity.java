@@ -36,13 +36,20 @@ public class SignInActivity extends AppCompatActivity {
 
     private void setListeners() {
         binding.textCreateNewAccount.setOnClickListener(v ->
-                startActivity(new Intent(getApplicationContext(), SignUpActivity.class)));
+                startActivity(new Intent(getApplicationContext(), SignUpActivity.class))
+        );
+
         binding.buttonSignIn.setOnClickListener(view -> {
             if (isValidSignInDetails()) {
                 signIn();
             }
         });
+
+        binding.textForgotPassword.setOnClickListener(v -> {
+            showForgotPasswordDialog();
+        });
     }
+
 
     private void signIn() {
         loading(true);
@@ -114,4 +121,38 @@ public class SignInActivity extends AppCompatActivity {
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
+
+    private void showForgotPasswordDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Reset Password");
+
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setHint("Enter your registered email");
+        input.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        input.setPadding(60, 30, 60, 30);
+
+        builder.setView(input);
+
+        builder.setPositiveButton("Send", (dialog, which) -> {
+            String email = input.getText().toString().trim();
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                showToast("Enter a valid email.");
+                return;
+            }
+
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            showToast("Reset link sent to your email.");
+                        } else {
+                            showToast("Failed: " + task.getException().getMessage());
+                        }
+                    });
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        builder.show();
+    }
+
 }
